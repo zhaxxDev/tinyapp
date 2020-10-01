@@ -3,7 +3,8 @@ const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
 var cookieParser = require('cookie-parser')
- 
+const bcrypt = require('bcrypt');
+
 app.use(cookieParser())
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -32,23 +33,21 @@ function generateRandomString() {
    return result;
 }
 
-const users = { 
-  "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
-  },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
-    password: "dishwasher-funk"
-  },
-  DIt6os:
-   { id: 'DIt6os',
-     email: 'alex.xian@hotmail.com',
-     password: 'test' } 
-
-}
+const users = { akTbZN:
+  { id: 'akTbZN',
+    email: 'alex.xian@hotmail.com',
+    password:
+     '$2b$10$/89miGKWHXoh/ScHaVYGye1zPy9XjMjczswjIZmsiRgaxTpjfkUeW' },
+ '6ZIUfr':
+  { id: '6ZIUfr',
+    email: 'test@test.com',
+    password:
+     '$2b$10$KW0RXW7jTy/Kpe/TdUOXiuZV3Lqnt1EiAqf7Ye.0ZxztyDg4Gq.Di' },
+ aJ48lW:
+  { id: 'aJ48lW',
+    email: 'admin@admin',
+    password:
+     '$2b$10$mFw8Nz/JyyiPEzHZaHfV0.5/ExhErJmmxd5fLOcP5mMPnew/8tZuq' } }
 
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
@@ -141,7 +140,7 @@ app.post("/login", (req, res) => {
     }
   }
   for (let name in users) {
-    if (userP === users[name].password){
+    if (bcrypt.compareSync(userP, users[name].password)) {
       statusP = true;
       console.log(statusP)
       usID = name;
@@ -210,9 +209,10 @@ app.post("/register", (req, res) => {
       res.status(400).end();
     }
   }
+  let hashedPW = bcrypt.hashSync(req.body.password, 10)
   users[latestUSER] = { id: latestUSER,
      email: req.body.email,
-      password: req.body.password
+      password: hashedPW
   };
   res.cookie("user_ID", latestUSER)
   console.log(users)
