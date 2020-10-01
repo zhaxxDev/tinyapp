@@ -10,7 +10,17 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.set("view engine", "ejs");
 
-
+function urlsForUser(id) {
+  let as = {};
+  for (let a in urlDatabase) {
+    let bs = a
+    console.log(bs)
+    if (urlDatabase[a].userID === id){
+      as[a] = urlDatabase[a] 
+    }
+  }
+  return as
+}
 
 function generateRandomString() {
   var result           = '';
@@ -92,17 +102,21 @@ app.get("/set", (req, res) => {
  });
 
  app.get("/urls", (req, res) => {
+   
   const templateVars = {
     users, userID: req.cookies["user_ID"], 
     // ... any other vars
-    urls: urlDatabase
+    urls: urlsForUser(req.cookies["user_ID"])
   };
    
   res.render("urls_index", templateVars);
 });     
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
+  if (req.cookies["user_ID"] === urlDatabase[req.params.shortURL].userID){
+    delete urlDatabase[req.params.shortURL];
+  }
+
   res.redirect(`/urls`);
 });
 
@@ -152,7 +166,7 @@ app.post("/urls/:shortURL", (req, res) => {
   console.log(req.body)
   if (req.body.newURL) {
     let a = req.params.shortURL;
-    urlDatabase[a] = req.body.newURL;
+    urlDatabase[a].longURL = req.body.newURL;
     res.redirect(`/urls`)
   }
   res.render("urls_show", templateVars);
