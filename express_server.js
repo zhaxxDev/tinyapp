@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const bcrypt = require('bcrypt');
 var cookieSession = require('cookie-session')
 var Keygrip = require('keygrip')
+const getUserByEmail = require('./helpers')
 
 app.use(cookieSession({
   name: 'session',
@@ -63,7 +64,7 @@ const urlDatabase = {
 };
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  res.redirect("/urls")
 });
 
 app.listen(PORT, () => {
@@ -139,24 +140,21 @@ app.post("/login", (req, res) => {
   if (req.body.email === '' && req.body.password === '') {
     res.status(400).end();
   }
-  let usID = ''
   let statusP = false;
   let statusS = false;
-  for (let name in users) {
-    if (userN === users[name].email){
-      statusS = true;
-      console.log(statusS)
-      usID = name;
-    }
-  }
-  if (bcrypt.compareSync(userP, users[usID].password)) {
+  
+  let userEMAIL = getUserByEmail(userN, users);
+
+  if (bcrypt.compareSync(userP, users[userEMAIL].password)) {
     statusP = true;
   }
-  
+  if (userEMAIL){
+    statusS = true;
+  }
   if (statusS !== true || statusP !== true) {
     res.status(403).end();
   }
-  req.session.user_id = usID;
+  req.session.user_id = userEMAIL;
 
   res.redirect('/urls')
 });
