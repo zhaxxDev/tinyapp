@@ -41,8 +41,8 @@ const users = {
 }
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
 };
 
 app.get("/", (req, res) => {
@@ -71,6 +71,15 @@ app.get("/set", (req, res) => {
     users, userID: req.cookies["user_ID"]
     // ... any other vars
   };
+   let statua = false;
+   for (let name in users) {
+     if (name === req.cookies["user_ID"]) {
+       statua = true;
+     }
+   }
+   if (statua !== true) {
+     res.redirect("/login")
+   }
   res.render("urls_new", templateVars);
 });
 
@@ -84,7 +93,7 @@ app.get("/set", (req, res) => {
 
  app.get("/urls", (req, res) => {
   const templateVars = {
-    users, userID: req.cookies["user_ID"],
+    users, userID: req.cookies["user_ID"], 
     // ... any other vars
     urls: urlDatabase
   };
@@ -133,12 +142,12 @@ app.post("/login", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], users, userID: req.cookies["user_ID"] };
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, users, userID: req.cookies["user_ID"] };
   res.render("urls_show", templateVars);
 });
 
 app.post("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], users, userID: req.cookies["user_ID"] };
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, users, userID: req.cookies["user_ID"] };
   console.log(templateVars)
   console.log(req.body)
   if (req.body.newURL) {
@@ -151,8 +160,8 @@ app.post("/urls/:shortURL", (req, res) => {
 
 
 app.get("/u/:shortURL", (req, res) => {
-  let longURL = urlDatabase[req.params.shortURL]
-  res.redirect(longURL);
+  let URLA = req.params.shortURL
+  res.redirect(urlDatabase[URLA].longURL);
 });
 
 app.post("/logout", (req, res) => {
@@ -171,7 +180,7 @@ app.get("/register", (req, res) => {
 app.post("/urls", (req, res) => {
   console.log(req.body);
   let latestURL = generateRandomString();
-  urlDatabase[latestURL] = req.body.longURL;
+  urlDatabase[latestURL] = { longURL: req.body.longURL, userID: req.cookies["user_ID"]};
   console.log(urlDatabase)
   res.redirect(`/urls/${latestURL}`)
 });
