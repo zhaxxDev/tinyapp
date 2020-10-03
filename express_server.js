@@ -160,7 +160,11 @@ app.post("/login", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
+
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, users, userID: req.session.user_id };
+  if (req.session.user_id !== urlDatabase[req.params.shortURL].userID){
+    res.redirect("/login");
+  }
   res.render("urls_show", templateVars);
 });
 
